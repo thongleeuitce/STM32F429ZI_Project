@@ -191,15 +191,22 @@ void USART3_IRQHandler(void)
   else if(USART_GetITStatus(USART3, USART_IT_RXNE) == SET)
   {
     msgReceive = (uint8_t)USART_ReceiveData(USART3);
-    if(msgReceive == 10 || msgReceive == 27)
-    {
-			if(msgReceive == 27)
-				flag_esc = 1;
-      USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
-			b_receive_done = 1;
-    }
-    else
-      queue_push(&queue_receiver, msgReceive);
+		if(msgReceive == 27)
+			flag_esc = 1;
+		else
+			queue_push(&queue_receiver, msgReceive);
+		USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+		b_receive_done = 1;
+		
+//    if(msgReceive == 10 || msgReceive == 27)
+//    {
+//			if(msgReceive == 27)
+//				flag_esc = 1;
+//      USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+//			b_receive_done = 1;
+//    }
+//    else
+//      queue_push(&queue_receiver, msgReceive);
       // TODO: check them dieu kien queue bi full 
 	}
 }

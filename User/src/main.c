@@ -5,14 +5,9 @@
 #include "math.h"
 
 #define STR_MAX_LENGTH	100
-#define TC_BIT			0x0040
-#define TC_SHIFT_LEFT	6
-#define RXNE_BIT		0x0020
-#define RXNE_SHIFT_LEFT	5
-
-
 
 void uart_interrupt_init(void);
+void timer_interrupt_init(void);
 void uart_send(char *q);
 void uart_receive(void);
 void from_receive_to_send(queue_t * send, queue_t * receive);
@@ -20,16 +15,19 @@ void queue_push_string(queue_t * q, const char * string, const uint8_t length);
 int get_data(queue_t q);
 void option2_input_operand(int *a, int *b);
 void option2_print_result(char *result);
+
+void student_info(void);
+void basic_operation(void);
+void simple_led(void);
+void advance_led(void);
+void timer_counter(void);
+
 void plus(void);
 void subtract(void);
 void multiply(void);
 void divide(void);
 void module(void);
 void blink(void);
-
-void student_info(void);
-void basic_operation(void);
-void simple_led(void);
 
 extern volatile int flag_esc;
 extern volatile uint8_t b_receive_done;
@@ -43,7 +41,7 @@ char* MAIN_MENU = "\n------------ MENU ---------------\n\
 								2. Basic operation\n\
 								3. Simple led\n\
 								4. Advance led\n\
-								5. Timer\n\
+								5. Timer counter\n\
 								Your option: ";
 
 char* OPTION1 = "\n1. Student info\n\
@@ -67,6 +65,20 @@ char* OPTION3 = "3. Simple led\n\
 								ESC: return previous menu\n\
 								Your option: ";
 
+char* OPTION4 = "4. Advance led(a, b, c)\n\
+								a. Set set led\n\
+								b. Set direction\n\
+								c. Start\n\
+								ESC: return previous menu\n\
+								Your option: ";
+
+char* OPTION5 = "5. Timer counter\n\
+								a. Set time counter (s)\n\
+								b. Set times loop\n\
+								c. Start\n\
+								ESC: return previous menu\n\
+								Your option: ";
+
 char* NEWLINE = "\n";
 
 int choose;
@@ -79,7 +91,6 @@ int i_result;
 
 int main()
 {
-	flag_esc = 0;
 	queue_init(&queue_sender);
 	queue_init(&queue_receiver);
 	queue_init(&queue_get_data);
@@ -89,6 +100,8 @@ int main()
 
 	for(;;)
 	{
+//		b_receive_done = 0;
+		flag_esc = 0;
 		// Send option & wait for user input
 		uart_send(MAIN_MENU);
 		uart_receive();
@@ -111,6 +124,12 @@ int main()
 			case 3:
 				simple_led();
 				break;
+			case 4:
+				advance_led();
+				break;
+			case 5:
+				timer_counter();
+				break;
 			default:
 				USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
 				b_receive_done = 1;
@@ -123,12 +142,15 @@ void student_info()
 {
 	uart_send(OPTION1);
 	uart_send(NEWLINE);
-	uart_receive();
+	do
+		uart_receive();
+	while(flag_esc == 0);
+	//reset queuce receiver
+	queue_init(&queue_receiver);
 }
 
 void basic_operation()
 {
-	int check;
 	for(;;)
 	{
 		// reset flag ESC
@@ -142,34 +164,17 @@ void basic_operation()
 			flag_esc = 0;
 			uart_send(NEWLINE);
 			return;
-		}
-		queue_get_data = queue_receiver;
+		}		
 		
+		choose = queue_receiver.items[0];	
+
 		// Print to terminal
 		from_receive_to_send(&queue_sender, &queue_receiver);					
 		uart_send(NEWLINE);
-		
+				
 		// get data to check if wrong input
-		choose = queue_get_data.items[0];
-		check = queue_get_data.items[1];
-		
-		// Check if user input two char like "aa" or "bb" or not a char in option like "f"
-		//							Enter					 a							e
-		while (check != 13 || choose < 97 || choose > 101)
-		{
+		if (choose < 97 || choose > 101)
 			uart_send("Not a option!\n");
-			uart_send(NEWLINE);
-			uart_send(OPTION2);
-			uart_receive();
-			
-			queue_get_data = queue_receiver;
-			// Print to terminal
-			from_receive_to_send(&queue_sender, &queue_receiver);					
-			uart_send(NEWLINE);
-		
-			choose = queue_get_data.items[0];
-			check = queue_get_data.items[1];
-		}
 			
 			//TODO: ESC doesn't show the previous menu
 		//TODO: check if input_operand not a number
@@ -190,13 +195,14 @@ void basic_operation()
 			case 'e':
 				module();
 				break;
+			default:
+				break;
 		}			
 	}
 }
 
 void simple_led()
 {
-	int check;
 	for (;;)
 	{
 		uart_send(NEWLINE);
@@ -208,23 +214,16 @@ void simple_led()
 			flag_esc = 0;
 			uart_send(NEWLINE);
 			return;
-		}
-		
-		queue_get_data = queue_receiver;
-		
+		}		
+		choose = queue_receiver.items[0];
+		//printf to terminal
 		from_receive_to_send(&queue_sender, &queue_receiver);				
 		uart_send(NEWLINE);
 		
 		STM_EVAL_LEDInit(LED3);
-		STM_EVAL_LEDInit(LED4);
+		STM_EVAL_LEDInit(LED4);		
 		
-		// get data to check if wrong input
-		choose = queue_get_data.items[0];
-		check = queue_get_data.items[1];
-		
-		// Check if user input two char like "aa" or "bb" or not a char in option like "f"
-		//							Enter					 a							c
-		while (check != 13 || choose < 97 || choose > 99)
+		while (choose < 97 || choose > 99)
 		{
 			uart_send("Not a option!\n");
 			uart_send(NEWLINE);
@@ -237,7 +236,6 @@ void simple_led()
 			uart_send(NEWLINE);
 		
 			choose = queue_get_data.items[0];
-			check = queue_get_data.items[1];
 		}
 		
 		switch (choose)
@@ -392,6 +390,45 @@ void module(void)
 	option2_print_result(c_result);	
 }
 
+void advance_led()
+{
+	int check;
+	for(;;)
+	{
+		flag_esc = 0;
+		// Home screen option 4
+		uart_send(NEWLINE);
+		uart_send(OPTION4);
+		uart_receive();
+		
+		if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			return;
+		}
+	}
+}
+void timer_counter()
+{
+	int check;
+	for(;;)
+	{
+		flag_esc = 0;
+		// Home screen option 2
+		uart_send(NEWLINE);
+		uart_send(OPTION5);
+		uart_receive();
+		
+		if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			return;
+		}
+	}
+}
+
 void option2_print_result(char *result)
 {
 	char* txtResult = "Result: ";	
@@ -402,7 +439,11 @@ void option2_print_result(char *result)
 	uart_send(NEWLINE);
 	uart_send(ESC);;
 	uart_send(NEWLINE);
-	uart_receive();
+	do
+		uart_receive();
+	while(flag_esc == 0);
+	//reset queuce receiver
+	queue_init(&queue_receiver);
 }
 
 void option2_input_operand(int *a, int *b)
@@ -429,7 +470,7 @@ void option2_input_operand(int *a, int *b)
 	{
 		/* Process for operand 1	*/
 		uart_send(NEWLINE);
-		uart_send("Not a number! Pls input again!\n");
+		uart_send("Not a number! Pleases input again!\n");
 		uart_send(NUM1_REQUEST);
 		uart_receive();
 	
@@ -558,12 +599,15 @@ int get_data(queue_t q)
 {
 	char temp[100];
 	int i = 0;
+	uint8_t b_success = 0;
 	
 	while (queue_is_empty(&q) == 0)
 	{
-		temp[i] = (char)(q.items[i]);
-		q.capacity--;
-		q.items[i] = q.items[i+1];
+		temp[i] = (char) queue_pop(&q, &b_success);
+//		temp[i] = (char)(q.items[i]);
+//		q.capacity--;
+//		q.items[i] = q.items[i+1];
+//		i++;
 		i++;
 	}
 	
