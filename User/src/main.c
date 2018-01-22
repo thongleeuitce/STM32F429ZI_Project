@@ -131,6 +131,8 @@ void basic_operation()
 	int check;
 	for(;;)
 	{
+		// reset flag ESC
+		flag_esc = 0;
 		// Home screen option 2
 		uart_send(NEWLINE);
 		uart_send(OPTION2);
@@ -291,6 +293,7 @@ void plus()
 	int operand1;
 	int operand2;
 	
+	uart_send("\na. Plus");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -310,6 +313,7 @@ void subtract()
 	int operand1;
 	int operand2;
 
+	uart_send("\nb. Subtract");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -329,6 +333,7 @@ void multiply(void)
 	int operand1;
 	int operand2;
 
+	uart_send("\nc. Multiply");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -351,6 +356,7 @@ void divide(void)
 
 	float div;
 
+	uart_send("\nd. Divide");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -372,6 +378,7 @@ void module(void)
 
 	float mol;
 
+	uart_send("\ne. Module");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum

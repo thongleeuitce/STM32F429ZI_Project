@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Build\STM32F4_Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Build\STM32F4_Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Mon Jan 22 12:57:13 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Mon Jan 22 13:27:32 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1288 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1266,6 +1266,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;student_info
 <LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
+<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;plus
+<LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;subtract
+<LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;multiply
+<LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;divide
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;module
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
 <LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;simple_led
@@ -1372,7 +1377,7 @@ Global Symbols
 <LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;module
 </UL>
 
-<P><STRONG><a name="[d1]"></a>module</STRONG> (Thumb, 338 bytes, Stack size 32 bytes, main.o(.text))
+<P><STRONG><a name="[d1]"></a>module</STRONG> (Thumb, 356 bytes, Stack size 32 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 784 + Unknown Stack Size
 <LI>Call Chain = module &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
@@ -1382,11 +1387,12 @@ Global Symbols
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send
 </UL>
 <BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
 </UL>
 
-<P><STRONG><a name="[d6]"></a>divide</STRONG> (Thumb, 92 bytes, Stack size 24 bytes, main.o(.text))
+<P><STRONG><a name="[d6]"></a>divide</STRONG> (Thumb, 98 bytes, Stack size 24 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 776 + Unknown Stack Size
 <LI>Call Chain = divide &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
@@ -1394,44 +1400,48 @@ Global Symbols
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send
 </UL>
 <BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
 </UL>
 
-<P><STRONG><a name="[d7]"></a>multiply</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, main.o(.text))
+<P><STRONG><a name="[d7]"></a>multiply</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 768 + Unknown Stack Size
 <LI>Call Chain = multiply &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send
 </UL>
 <BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
 </UL>
 
-<P><STRONG><a name="[d8]"></a>subtract</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, main.o(.text))
+<P><STRONG><a name="[d8]"></a>subtract</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 768 + Unknown Stack Size
 <LI>Call Chain = subtract &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send
 </UL>
 <BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
 </UL>
 
-<P><STRONG><a name="[d9]"></a>plus</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, main.o(.text))
+<P><STRONG><a name="[d9]"></a>plus</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 768 + Unknown Stack Size
 <LI>Call Chain = plus &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_input_operand
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;option2_print_result
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send
 </UL>
 <BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;basic_operation
 </UL>
 
-<P><STRONG><a name="[da]"></a>basic_operation</STRONG> (Thumb, 230 bytes, Stack size 8 bytes, main.o(.text))
+<P><STRONG><a name="[da]"></a>basic_operation</STRONG> (Thumb, 236 bytes, Stack size 8 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 792 + Unknown Stack Size
 <LI>Call Chain = basic_operation &rArr; module &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
