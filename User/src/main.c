@@ -10,7 +10,7 @@
 #define RXNE_BIT		0x0020
 #define RXNE_SHIFT_LEFT	5
 
-extern volatile int flag_esc;
+
 
 void uart_interrupt_init(void);
 void uart_send(char *q);
@@ -31,6 +31,7 @@ void student_info(void);
 void basic_operation(void);
 void simple_led(void);
 
+extern volatile int flag_esc;
 extern volatile uint8_t b_receive_done;
 
 extern queue_t queue_sender;
@@ -76,7 +77,8 @@ char* c_result;
 char a_result[100];	
 int i_result;
 
-int main(){
+int main()
+{
 	flag_esc = 0;
 	queue_init(&queue_sender);
 	queue_init(&queue_receiver);
@@ -85,7 +87,8 @@ int main(){
 	// Uart interrupt init
 	uart_interrupt_init();
 
-	for(;;){
+	for(;;)
+	{
 		// Send option & wait for user input
 		uart_send(MAIN_MENU);
 		uart_receive();
@@ -126,46 +129,48 @@ void student_info()
 void basic_operation()
 {
 	int check;
-	// Home screen option 2
-	uart_send(NEWLINE);
-	uart_send(OPTION2);
-	uart_receive();
-	if(flag_esc == 1)
+	for(;;)
 	{
-		flag_esc = 0;
-		uart_send(NEWLINE);
-		return;
-	}
-	queue_get_data = queue_receiver;
-	
-	// Print to terminal
-	from_receive_to_send(&queue_sender, &queue_receiver);					
-	uart_send(NEWLINE);
-	
-	// get data to check if wrong input
-	choose = queue_get_data.items[0];
-	check = queue_get_data.items[1];
-	
-	// Check if user input two char like "aa" or "bb" or not a char in option like "f"
-	//							Enter					 a							e
-	while (check != 13 || choose < 97 || choose > 101)
-	{
-		uart_send("Not a option!\n");
+		// Home screen option 2
 		uart_send(NEWLINE);
 		uart_send(OPTION2);
 		uart_receive();
-		
+		if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			return;
+		}
 		queue_get_data = queue_receiver;
+		
 		// Print to terminal
 		from_receive_to_send(&queue_sender, &queue_receiver);					
 		uart_send(NEWLINE);
-	
+		
+		// get data to check if wrong input
 		choose = queue_get_data.items[0];
 		check = queue_get_data.items[1];
-	}
 		
-		//TODO: ESC doesn't show the previous menu
-	//TODO: check if input_operand not a number
+		// Check if user input two char like "aa" or "bb" or not a char in option like "f"
+		//							Enter					 a							e
+		while (check != 13 || choose < 97 || choose > 101)
+		{
+			uart_send("Not a option!\n");
+			uart_send(NEWLINE);
+			uart_send(OPTION2);
+			uart_receive();
+			
+			queue_get_data = queue_receiver;
+			// Print to terminal
+			from_receive_to_send(&queue_sender, &queue_receiver);					
+			uart_send(NEWLINE);
+		
+			choose = queue_get_data.items[0];
+			check = queue_get_data.items[1];
+		}
+			
+			//TODO: ESC doesn't show the previous menu
+		//TODO: check if input_operand not a number
 		switch (choose)
 		{
 			case 'a':
@@ -184,64 +189,67 @@ void basic_operation()
 				module();
 				break;
 		}			
+	}
 }
 
 void simple_led()
 {
 	int check;
-	
-	uart_send(NEWLINE);
-	uart_send(OPTION3);
-	uart_receive();	
-	
-	if(flag_esc == 1)
+	for (;;)
 	{
-		flag_esc = 0;
-		uart_send(NEWLINE);
-		return;
-	}
-	
-	queue_get_data = queue_receiver;
-	
-	from_receive_to_send(&queue_sender, &queue_receiver);				
-	uart_send(NEWLINE);
-	
-	STM_EVAL_LEDInit(LED3);
-	STM_EVAL_LEDInit(LED4);
-	
-	// get data to check if wrong input
-	choose = queue_get_data.items[0];
-	check = queue_get_data.items[1];
-	
-	// Check if user input two char like "aa" or "bb" or not a char in option like "f"
-	//							Enter					 a							c
-	while (check != 13 || choose < 97 || choose > 99)
-	{
-		uart_send("Not a option!\n");
 		uart_send(NEWLINE);
 		uart_send(OPTION3);
-		uart_receive();
+		uart_receive();	
+		
+		if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			return;
+		}
 		
 		queue_get_data = queue_receiver;
-		// Print to terminal
-		from_receive_to_send(&queue_sender, &queue_receiver);					
+		
+		from_receive_to_send(&queue_sender, &queue_receiver);				
 		uart_send(NEWLINE);
-	
+		
+		STM_EVAL_LEDInit(LED3);
+		STM_EVAL_LEDInit(LED4);
+		
+		// get data to check if wrong input
 		choose = queue_get_data.items[0];
 		check = queue_get_data.items[1];
-	}
-	
-	switch (choose)
-	{
-		case 'a':
-			STM_EVAL_LEDOn(LED3);
-			break;
-		case 'b':
-			STM_EVAL_LEDOff(LED3);
-			break;
-		case 'c':
-			blink();
-			break;
+		
+		// Check if user input two char like "aa" or "bb" or not a char in option like "f"
+		//							Enter					 a							c
+		while (check != 13 || choose < 97 || choose > 99)
+		{
+			uart_send("Not a option!\n");
+			uart_send(NEWLINE);
+			uart_send(OPTION3);
+			uart_receive();
+			
+			queue_get_data = queue_receiver;
+			// Print to terminal
+			from_receive_to_send(&queue_sender, &queue_receiver);					
+			uart_send(NEWLINE);
+		
+			choose = queue_get_data.items[0];
+			check = queue_get_data.items[1];
+		}
+		
+		switch (choose)
+		{
+			case 'a':
+				STM_EVAL_LEDOn(LED3);
+				break;
+			case 'b':
+				STM_EVAL_LEDOff(LED3);
+				break;
+			case 'c':
+				blink();
+				break;
+		}
 	}
 }
 
