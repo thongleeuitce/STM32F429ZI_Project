@@ -10,6 +10,8 @@
 #define RXNE_BIT		0x0020
 #define RXNE_SHIFT_LEFT	5
 
+extern volatile int flag_esc;
+
 void uart_interrupt_init(void);
 void uart_send(char *q);
 void uart_receive(void);
@@ -34,18 +36,18 @@ extern volatile uint8_t b_receive_done;
 extern queue_t queue_sender;
 extern queue_t queue_receiver;
 
-char* MAIN_MENU = "Choose your option (1, 2, ..): \n\
+char* MAIN_MENU = "\n------------ MENU ---------------\n\
+								Choose your option (1, 2, ..): \n\
 								1. Student info\n\
 								2. Basic operation\n\
 								3. Simple led\n\
 								4. Advance led\n\
-								5. Audio\n\
-								ESC: return previous menu\n\
+								5. Timer\n\
 								Your option: ";
 
 char* OPTION1 = "\n1. Student info\n\
-								ID: 14520555\n\
-								Full name: Nguyen Thanh Nam\n\
+								ID: 14520899\n\
+								Full name: Le Van Thong\n\
 								ESC: return previous menu\n";
 
 char* OPTION2 = "2. Basic operation( a,b,..):\n\
@@ -67,6 +69,7 @@ char* OPTION3 = "3. Simple led\n\
 char* NEWLINE = "\n";
 
 int choose;
+
 queue_t queue_get_data;
 
 char* c_result;
@@ -74,6 +77,7 @@ char a_result[100];
 int i_result;
 
 int main(){
+	flag_esc = 0;
 	queue_init(&queue_sender);
 	queue_init(&queue_receiver);
 	queue_init(&queue_get_data);
@@ -125,7 +129,13 @@ void basic_operation()
 	// Home screen option 2
 	uart_send(NEWLINE);
 	uart_send(OPTION2);
-	uart_receive();	
+	uart_receive();
+	if(flag_esc == 1)
+	{
+		flag_esc = 0;
+		uart_send(NEWLINE);
+		return;
+	}
 	queue_get_data = queue_receiver;
 	
 	// Print to terminal
@@ -183,6 +193,14 @@ void simple_led()
 	uart_send(NEWLINE);
 	uart_send(OPTION3);
 	uart_receive();	
+	
+	if(flag_esc == 1)
+	{
+		flag_esc = 0;
+		uart_send(NEWLINE);
+		return;
+	}
+	
 	queue_get_data = queue_receiver;
 	
 	from_receive_to_send(&queue_sender, &queue_receiver);				
