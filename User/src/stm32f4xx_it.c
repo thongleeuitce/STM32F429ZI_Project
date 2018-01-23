@@ -44,8 +44,11 @@
 
 volatile uint8_t b_receive_done;
 
-int volatile flag_esc;
-int volatile flag_multi_input;
+volatile int flag_esc;
+volatile int flag_multi_input;
+volatile int time_countdown;
+volatile int flag_time_update;
+
 
 queue_t queue_sender;
 queue_t queue_receiver;
@@ -209,7 +212,24 @@ void USART3_IRQHandler(void)
 		
 	}
 }
+void TIM4_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+	{
+		if (time_countdown == 0)
+		{
+			TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
+			TIM_Cmd(TIM4, DISABLE);
+		}
+		else
+		{
+			time_countdown --;
+			flag_time_update = 1;
+		}
+		TIM_ClearITPendingBit(TIM4, TIM_IT_Update); 
 
+	}
+}
 /**
   * @}
   */ 

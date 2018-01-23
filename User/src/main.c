@@ -28,9 +28,12 @@ void multiply(void);
 void divide(void);
 void module(void);
 void blink(void);
+void countdown(void);
 
+extern volatile int time_countdown;
 extern volatile int flag_esc;
 extern volatile int flag_multi_input;
+extern volatile int flag_time_update;
 extern volatile uint8_t b_receive_done;
 
 extern queue_t queue_sender;
@@ -413,24 +416,81 @@ void advance_led()
 }
 void timer_counter()
 {
-	int check;
+	timer_interrupt_init();
 	for(;;)
 	{
+		// reset flag ESC
 		flag_esc = 0;
-		// Home screen option 2
+		// Home screen option 5
 		uart_send(NEWLINE);
 		uart_send(OPTION5);
 		uart_receive();
-		
 		if(flag_esc == 1)
 		{
 			flag_esc = 0;
 			uart_send(NEWLINE);
 			return;
+		}		
+		choose = queue_receiver.items[0];
+		// Print to terminal
+		from_receive_to_send(&queue_sender, &queue_receiver);					
+		uart_send(NEWLINE);
+				
+		// get data to check if wrong input
+		if (choose < 97 || choose > 101)
+			uart_send("Not a option!\n");
+		//TODO: check if input_operand not a number
+		switch (choose)
+		{
+			case 'a':
+				countdown();
+				break;
+			case 'b':
+				break;
+			default:
+				break;
 		}
 	}
 }
+void countdown()
+{
+	uart_send("\nInput time countdown (s): ");
+	flag_multi_input = 1;
+	uart_receive();
+	flag_multi_input = 0;
 
+	// Get data input
+	queue_get_data = queue_receiver;
+	// Print to terminal
+	from_receive_to_send(&queue_sender, &queue_receiver);	
+	time_countdown = get_data(queue_get_data);	
+	
+	// enable Timer4 and interrupt for timer4
+	TIM_ITConfig(TIM4,TIM_IT_Update,ENABLE);
+	TIM_Cmd(TIM4, ENABLE);
+	
+	while(time_countdown != 0)
+	{
+		if(flag_time_update == 1)
+		{
+			sprintf(a_result,"%d",time_countdown);
+			uart_send(a_result);
+			uart_send("... ");
+			flag_time_update = 0;
+		}
+	}
+	uart_send("\nTime out !");
+	uart_send(NEWLINE);
+	uart_send("ESC: return previous menu");
+	uart_send(NEWLINE);
+	do
+		uart_receive();
+	while(flag_esc == 0);
+	//reset queuce receiver and flag ESC
+	queue_init(&queue_receiver);
+	flag_esc = 0;
+	
+}
 void option2_print_result(char *result)
 {
 	char* txtResult = "Result: ";	
@@ -570,7 +630,24 @@ void uart_interrupt_init()
 void timer_interrupt_init()
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-
+	NVIC_InitTypeDef nvic_timer;
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+  TIM_TimeBaseStructure.TIM_Prescaler = ((SystemCoreClock/2)/10000)-1;     // frequency = 10000
+  TIM_TimeBaseStructure.TIM_Period = 5000 - 1;														// 1s
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	
+  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+	
+	nvic_timer.NVIC_IRQChannel = TIM4_IRQn;
+  nvic_timer.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic_timer.NVIC_IRQChannelSubPriority = 1;
+  nvic_timer.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic_timer);   
+	
+	TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
+	TIM_Cmd(TIM4, DISABLE);
 }
 void queue_push_string(queue_t * q, const char * string, const uint8_t length)
 {
