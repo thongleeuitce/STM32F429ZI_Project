@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Build\STM32F4_Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Build\STM32F4_Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Tue Jan 23 01:49:39 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Tue Jan 23 23:45:46 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1288 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1340,7 +1340,7 @@ Global Symbols
 <LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blink
 </UL>
 
-<P><STRONG><a name="[cc]"></a>blink</STRONG> (Thumb, 176 bytes, Stack size 520 bytes, main.o(.text))
+<P><STRONG><a name="[cc]"></a>blink</STRONG> (Thumb, 188 bytes, Stack size 520 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 736<LI>Call Chain = blink &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STM_EVAL_LEDOff
@@ -1356,7 +1356,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;simple_led
 </UL>
 
-<P><STRONG><a name="[d0]"></a>simple_led</STRONG> (Thumb, 218 bytes, Stack size 8 bytes, main.o(.text))
+<P><STRONG><a name="[d0]"></a>simple_led</STRONG> (Thumb, 208 bytes, Stack size 8 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 744<LI>Call Chain = simple_led &rArr; blink &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STM_EVAL_LEDOff
@@ -1371,7 +1371,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[d1]"></a>option2_print_result</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, main.o(.text))
+<P><STRONG><a name="[d1]"></a>option2_print_result</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = option2_print_result &rArr; uart_send &rArr; queue_push_string &rArr; queue_push
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;queue_init
@@ -1385,7 +1385,7 @@ Global Symbols
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;module
 </UL>
 
-<P><STRONG><a name="[d3]"></a>option2_input_operand</STRONG> (Thumb, 578 bytes, Stack size 536 bytes, main.o(.text))
+<P><STRONG><a name="[d3]"></a>option2_input_operand</STRONG> (Thumb, 576 bytes, Stack size 536 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 752<LI>Call Chain = option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
@@ -1481,7 +1481,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[de]"></a>student_info</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, main.o(.text))
+<P><STRONG><a name="[de]"></a>student_info</STRONG> (Thumb, 46 bytes, Stack size 8 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = student_info &rArr; uart_send &rArr; queue_push_string &rArr; queue_push
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;queue_init
@@ -1508,7 +1508,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[84]"></a>main</STRONG> (Thumb, 322 bytes, Stack size 496 bytes, main.o(.text))
+<P><STRONG><a name="[84]"></a>main</STRONG> (Thumb, 328 bytes, Stack size 496 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1288 + Unknown Stack Size
 <LI>Call Chain = main &rArr; basic_operation &rArr; module &rArr; option2_input_operand &rArr; get_data &rArr; atoi &rArr; strtol &rArr; _strtoul
 </UL>
@@ -1598,7 +1598,7 @@ Global Symbols
 <P><STRONG><a name="[c]"></a>SysTick_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f429_439xx.o(RESET)
 </UL>
-<P><STRONG><a name="[34]"></a>USART3_IRQHandler</STRONG> (Thumb, 136 bytes, Stack size 8 bytes, stm32f4xx_it.o(.text))
+<P><STRONG><a name="[34]"></a>USART3_IRQHandler</STRONG> (Thumb, 170 bytes, Stack size 8 bytes, stm32f4xx_it.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = USART3_IRQHandler &rArr; USART_ITConfig
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_GetITStatus

@@ -45,6 +45,7 @@
 volatile uint8_t b_receive_done;
 
 int volatile flag_esc;
+int volatile flag_multi_input;
 
 queue_t queue_sender;
 queue_t queue_receiver;
@@ -195,19 +196,17 @@ void USART3_IRQHandler(void)
 			flag_esc = 1;
 		else
 			queue_push(&queue_receiver, msgReceive);
-		USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
-		b_receive_done = 1;
+		if(flag_multi_input == 0)
+		{
+			USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+			b_receive_done = 1;
+		}
+		else if(msgReceive == 10)
+		{
+			USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+			b_receive_done = 1;
+		}
 		
-//    if(msgReceive == 10 || msgReceive == 27)
-//    {
-//			if(msgReceive == 27)
-//				flag_esc = 1;
-//      USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
-//			b_receive_done = 1;
-//    }
-//    else
-//      queue_push(&queue_receiver, msgReceive);
-      // TODO: check them dieu kien queue bi full 
 	}
 }
 

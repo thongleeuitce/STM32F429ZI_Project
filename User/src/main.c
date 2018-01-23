@@ -30,6 +30,7 @@ void module(void);
 void blink(void);
 
 extern volatile int flag_esc;
+extern volatile int flag_multi_input;
 extern volatile uint8_t b_receive_done;
 
 extern queue_t queue_sender;
@@ -98,10 +99,9 @@ int main()
 	// Uart interrupt init
 	uart_interrupt_init();
 
+	flag_multi_input = 0;
 	for(;;)
 	{
-//		b_receive_done = 0;
-		flag_esc = 0;
 		// Send option & wait for user input
 		uart_send(MAIN_MENU);
 		uart_receive();
@@ -145,8 +145,9 @@ void student_info()
 	do
 		uart_receive();
 	while(flag_esc == 0);
-	//reset queuce receiver
+	//reset queuce receiver and flag ESC
 	queue_init(&queue_receiver);
+	flag_esc = 0;
 }
 
 void basic_operation()
@@ -175,8 +176,6 @@ void basic_operation()
 		// get data to check if wrong input
 		if (choose < 97 || choose > 101)
 			uart_send("Not a option!\n");
-			
-			//TODO: ESC doesn't show the previous menu
 		//TODO: check if input_operand not a number
 		switch (choose)
 		{
@@ -249,6 +248,8 @@ void simple_led()
 			case 'c':
 				blink();
 				break;
+			default:
+				break;
 		}
 	}
 }
@@ -261,8 +262,9 @@ void blink()
 	/* Process for times input	*/
 	queue_push_string(&queue_sender, NEWLINE, strlen(NEWLINE));
 	uart_send(INPUT_TIMES);
+	flag_multi_input = 1;
 	uart_receive();
-	
+	flag_multi_input = 0;
 	// Get data input
 	queue_get_data = queue_receiver;
 	
@@ -439,11 +441,14 @@ void option2_print_result(char *result)
 	uart_send(NEWLINE);
 	uart_send(ESC);;
 	uart_send(NEWLINE);
+	
+	flag_multi_input = 0;
 	do
 		uart_receive();
 	while(flag_esc == 0);
-	//reset queuce receiver
+	//reset queuce receiver and flag ESC
 	queue_init(&queue_receiver);
+	flag_esc = 0;
 }
 
 void option2_input_operand(int *a, int *b)
@@ -456,6 +461,8 @@ void option2_input_operand(int *a, int *b)
 	/* Process for operand 1	*/
 	uart_send(NEWLINE);
 	uart_send(NUM1_REQUEST);
+	
+	flag_multi_input = 1;
 	uart_receive();
 	
 	// Get data input
@@ -464,7 +471,7 @@ void option2_input_operand(int *a, int *b)
 		
 	// Print to terminal
 	from_receive_to_send(&queue_sender, &queue_receiver);						
-	uart_send(NEWLINE);
+//	uart_send(NEWLINE);
 	
 	while (check1 < 48 || check1 > 57)
 	{
@@ -498,7 +505,7 @@ void option2_input_operand(int *a, int *b)
 	
 	// Print to terminal	
 	from_receive_to_send(&queue_sender, &queue_receiver);
-	uart_send(NEWLINE);	
+//	uart_send(NEWLINE);	
 	
 	while (check2 < 48 || check2 > 57)
 	{
