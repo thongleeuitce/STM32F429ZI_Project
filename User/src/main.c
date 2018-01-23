@@ -74,7 +74,7 @@ char* OPTION4 = "4. Advance led(a, b, c)\n\
 								Your option: ";
 
 char* OPTION5 = "5. Timer counter\n\
-								a. Set time counter (s)\n\
+								a. Set time countdown\n\
 								b. Set times loop\n\
 								c. Start\n\
 								ESC: return previous menu\n\
@@ -567,7 +567,11 @@ void uart_interrupt_init()
 
 	USART_Cmd(USART3, ENABLE);
 }
+void timer_interrupt_init()
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
+}
 void queue_push_string(queue_t * q, const char * string, const uint8_t length)
 {
 	int i;

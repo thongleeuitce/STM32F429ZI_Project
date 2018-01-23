@@ -26,6 +26,7 @@
 .\build\stm32f4xx_it.o: .\Utilities\STM32F429I-Discovery\stm32f429i_discovery.h
 .\build\stm32f4xx_it.o: .\Utilities\STM32F429I-Discovery\stm32f429i_discovery_sdram.h
 .\build\stm32f4xx_it.o: .\Utilities\STM32F429I-Discovery\../Common/fonts.h
+.\build\stm32f4xx_it.o: .\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_tim.h
 .\build\stm32f4xx_it.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\build\stm32f4xx_it.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
 .\build\stm32f4xx_it.o: .\User\inc\queue.h

@@ -31,6 +31,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f429i_discovery_lcd.h"
+#include "stm32f4xx_tim.h"
 #include <stdio.h>
 #include <string.h>
 
