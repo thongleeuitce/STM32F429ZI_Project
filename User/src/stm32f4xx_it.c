@@ -47,6 +47,7 @@ volatile uint8_t b_receive_done;
 volatile int flag_esc;
 volatile int flag_multi_input;
 volatile int time_countdown;
+volatile int time_countup;
 volatile int flag_time_update;
 
 
@@ -212,20 +213,36 @@ void USART3_IRQHandler(void)
 		
 	}
 }
-void TIM4_IRQHandler(void)
+void TIM3_IRQHandler(void)
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+	static uint32_t time1 =0;
+	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
 	{
-		if (time_countdown == 0)
+		if(++time1>1000)
 		{
-			TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
-			TIM_Cmd(TIM4, DISABLE);
-		}
-		else
-		{
+			time1 = 0;
 			time_countdown --;
 			flag_time_update = 1;
 		}
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update); 
+
+	}
+}
+void TIM4_IRQHandler(void)
+{
+	static uint32_t time2 =0;
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+	{
+		time2 ++;
+		if(time2>1000)
+		{
+			time2 = 0;
+			time_countup ++;
+			STM_EVAL_LEDOn(LED3);
+		}
+		if(time2 == 500)
+			STM_EVAL_LEDOff(LED3);
+		
 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update); 
 
 	}

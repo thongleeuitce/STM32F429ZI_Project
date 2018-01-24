@@ -7,7 +7,9 @@
 #define STR_MAX_LENGTH	100
 
 void uart_interrupt_init(void);
-void timer_interrupt_init(void);
+void timer3_interrupt_init(void);
+void timer4_interrupt_init(void);
+
 void uart_send(char *q);
 void uart_receive(void);
 void from_receive_to_send(queue_t * send, queue_t * receive);
@@ -29,8 +31,10 @@ void divide(void);
 void module(void);
 void blink(void);
 void countdown(void);
+void stopwatch(void);
 
 extern volatile int time_countdown;
+extern volatile int time_countup;
 extern volatile int flag_esc;
 extern volatile int flag_multi_input;
 extern volatile int flag_time_update;
@@ -77,9 +81,8 @@ char* OPTION4 = "4. Advance led(a, b, c)\n\
 								Your option: ";
 
 char* OPTION5 = "5. Timer counter\n\
-								a. Set time countdown\n\
-								b. Set times loop\n\
-								c. Start\n\
+								a. Countdown\n\
+								b. Stopwatch\n\
 								ESC: return previous menu\n\
 								Your option: ";
 
@@ -134,8 +137,7 @@ int main()
 				timer_counter();
 				break;
 			default:
-				USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
-				b_receive_done = 1;
+				break;
 		}
 	}
 	return 0;
@@ -260,7 +262,7 @@ void simple_led()
 void blink()
 {
 	int i, j, times;
-	char* INPUT_TIMES = "Blink LED! Input times you want to blink: ";
+	char* INPUT_TIMES = "c. Blink led(Input number & press Enter)\nInput times you want to blink: ";
 		
 	/* Process for times input	*/
 	queue_push_string(&queue_sender, NEWLINE, strlen(NEWLINE));
@@ -287,8 +289,6 @@ void blink()
 			STM_EVAL_LEDOff(LED4);
 			for(j = 0; j < 3000000; j++);
 	}
-	
-	uart_send(NEWLINE);
 }
 void plus()
 {
@@ -296,7 +296,7 @@ void plus()
 	int operand1;
 	int operand2;
 	
-	uart_send("\na. Plus");
+	uart_send("\na. Plus (Input number & press Enter)");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -316,7 +316,7 @@ void subtract()
 	int operand1;
 	int operand2;
 
-	uart_send("\nb. Subtract");
+	uart_send("\nb. Subtract (Input number & press Enter)");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -336,7 +336,7 @@ void multiply(void)
 	int operand1;
 	int operand2;
 
-	uart_send("\nc. Multiply");
+	uart_send("\nc. Multiply (Input number & press Enter)");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -359,7 +359,7 @@ void divide(void)
 
 	float div;
 
-	uart_send("\nd. Divide");
+	uart_send("\nd. Divide (Input number & press Enter)");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -381,7 +381,7 @@ void module(void)
 
 	float mol;
 
-	uart_send("\ne. Module");
+	uart_send("\ne. Module (Input number & press Enter)");
 	option2_input_operand(&operand1, &operand2);
 	
 	// Cal sum
@@ -416,7 +416,7 @@ void advance_led()
 }
 void timer_counter()
 {
-	timer_interrupt_init();
+	timer3_interrupt_init();
 	for(;;)
 	{
 		// reset flag ESC
@@ -435,7 +435,8 @@ void timer_counter()
 		// Print to terminal
 		from_receive_to_send(&queue_sender, &queue_receiver);					
 		uart_send(NEWLINE);
-				
+		if (choose < 97 || choose > 101)
+			uart_send("Not a option!\n");
 		// get data to check if wrong input
 		if (choose < 97 || choose > 101)
 			uart_send("Not a option!\n");
@@ -446,6 +447,7 @@ void timer_counter()
 				countdown();
 				break;
 			case 'b':
+				stopwatch();
 				break;
 			default:
 				break;
@@ -454,6 +456,8 @@ void timer_counter()
 }
 void countdown()
 {
+	int check;
+	uart_send("\na. Countdown (Input number & press Enter)");
 	uart_send("\nInput time countdown (s): ");
 	flag_multi_input = 1;
 	uart_receive();
@@ -463,11 +467,28 @@ void countdown()
 	queue_get_data = queue_receiver;
 	// Print to terminal
 	from_receive_to_send(&queue_sender, &queue_receiver);	
+	check = queue_get_data.items[0];
+	while (check < 48 || check > 57)
+	{
+		/* Process for operand 1	*/
+		uart_send("Not a number! Pleases input again!\n");
+		uart_send("Input time countdown (s): ");
+		flag_multi_input = 1;
+		uart_receive();
+		flag_multi_input = 0;
+
+		// Get data input
+		queue_get_data = queue_receiver;
+		check = queue_get_data.items[0];
+		
+		// Print to terminal
+		from_receive_to_send(&queue_sender, &queue_receiver);						
+	}
 	time_countdown = get_data(queue_get_data);	
-	
-	// enable Timer4 and interrupt for timer4
-	TIM_ITConfig(TIM4,TIM_IT_Update,ENABLE);
-	TIM_Cmd(TIM4, ENABLE);
+
+	// enable Timer3 and interrupt for timer4
+	TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE);
+	TIM_Cmd(TIM3, ENABLE);
 	
 	while(time_countdown != 0)
 	{
@@ -479,6 +500,9 @@ void countdown()
 			flag_time_update = 0;
 		}
 	}
+	TIM_ITConfig(TIM3,TIM_IT_Update,DISABLE);
+	TIM_Cmd(TIM3, DISABLE);
+	
 	uart_send("\nTime out !");
 	uart_send(NEWLINE);
 	uart_send("ESC: return previous menu");
@@ -491,6 +515,95 @@ void countdown()
 	flag_esc = 0;
 	
 }
+void stopwatch()
+{
+	timer4_interrupt_init();
+	STM_EVAL_LEDInit(LED3);
+	time_countup = 0;
+	uart_send("\nb. Stopwatch");
+	uart_send("\nPress 1 to Start\n");
+	uart_send("ESC: return previous menu\n");
+	uart_receive();
+	if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			return;
+		}		
+	choose = queue_receiver.items[0];
+	from_receive_to_send(&queue_sender, &queue_receiver);					
+	uart_send(NEWLINE);
+	while(choose != '1')
+	{
+		uart_send("Please press 1 to Start\n");
+		uart_send("ESC: return previous menu\n");
+		uart_receive();
+		if(flag_esc == 1)
+			{
+				flag_esc = 0;
+				uart_send(NEWLINE);
+				return;
+			}		
+		choose = queue_receiver.items[0];
+		from_receive_to_send(&queue_sender, &queue_receiver);			
+		uart_send(NEWLINE);
+	}
+	TIM_ITConfig(TIM4,TIM_IT_Update,ENABLE);
+	TIM_Cmd(TIM4, ENABLE);
+	uart_send("\nCounting...\nPress 1 to Stop\n");
+	uart_send("ESC: return previous menu\n");
+	uart_receive();
+	if(flag_esc == 1)
+		{
+			flag_esc = 0;
+			uart_send(NEWLINE);
+			TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
+			TIM_Cmd(TIM4, DISABLE);
+			time_countup = 0;
+			return;
+		}
+	choose = queue_receiver.items[0];
+	from_receive_to_send(&queue_sender, &queue_receiver);			
+	uart_send(NEWLINE);
+	while(choose != '1')
+	{
+		uart_send("Counting...\n");
+		uart_send("Please press 1 to Stop\n");
+		uart_send("ESC: return previous menu\n");
+		uart_receive();
+		if(flag_esc == 1)
+			{
+				flag_esc = 0;
+				uart_send(NEWLINE);
+				TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
+				TIM_Cmd(TIM4, DISABLE);
+				time_countup = 0;
+				return;
+			}		
+		choose = queue_receiver.items[0];
+		from_receive_to_send(&queue_sender, &queue_receiver);					
+		uart_send(NEWLINE);
+	}		
+	
+	TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
+	TIM_Cmd(TIM4, DISABLE);
+	STM_EVAL_LEDOff(LED3);
+
+	uart_send("Time: ");
+	sprintf(a_result,"%d", time_countup);
+	uart_send(a_result);
+	uart_send("s");
+	uart_send(NEWLINE);
+	uart_send("ESC: return previous menu\n");
+	
+	do
+		uart_receive();
+	while(flag_esc == 0);
+	//reset queuce receiver and flag ESC
+	queue_init(&queue_receiver);
+	flag_esc = 0;
+	time_countup = 0;
+}
 void option2_print_result(char *result)
 {
 	char* txtResult = "Result: ";	
@@ -499,8 +612,7 @@ void option2_print_result(char *result)
 	uart_send(txtResult);
 	uart_send(result);
 	uart_send(NEWLINE);
-	uart_send(ESC);;
-	uart_send(NEWLINE);
+	uart_send(ESC);
 	
 	flag_multi_input = 0;
 	do
@@ -536,7 +648,6 @@ void option2_input_operand(int *a, int *b)
 	while (check1 < 48 || check1 > 57)
 	{
 		/* Process for operand 1	*/
-		uart_send(NEWLINE);
 		uart_send("Not a number! Pleases input again!\n");
 		uart_send(NUM1_REQUEST);
 		uart_receive();
@@ -547,7 +658,6 @@ void option2_input_operand(int *a, int *b)
 		
 		// Print to terminal
 		from_receive_to_send(&queue_sender, &queue_receiver);						
-		uart_send(NEWLINE);
 	}
 		
 	// Convert to int
@@ -627,14 +737,36 @@ void uart_interrupt_init()
 
 	USART_Cmd(USART3, ENABLE);
 }
-void timer_interrupt_init()
+void timer3_interrupt_init()
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef nvic_timer;
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+  TIM_TimeBaseStructure.TIM_Prescaler = ((SystemCoreClock/4)/1000000)-1;   // frequency = 1MHz
+  TIM_TimeBaseStructure.TIM_Period = 1000 - 1;														// 1ms
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+	
+	nvic_timer.NVIC_IRQChannel = TIM3_IRQn;
+  nvic_timer.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic_timer.NVIC_IRQChannelSubPriority = 1;
+  nvic_timer.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic_timer);   
+	
+	TIM_ITConfig(TIM3,TIM_IT_Update,DISABLE);
+	TIM_Cmd(TIM3, DISABLE);
+}
+void timer4_interrupt_init()
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	NVIC_InitTypeDef nvic_timer;
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-  TIM_TimeBaseStructure.TIM_Prescaler = ((SystemCoreClock/2)/10000)-1;     // frequency = 10000
-  TIM_TimeBaseStructure.TIM_Period = 5000 - 1;														// 1s
+  TIM_TimeBaseStructure.TIM_Prescaler = ((SystemCoreClock/4)/1000000)-1;   // frequency = 1MHz
+  TIM_TimeBaseStructure.TIM_Period = 1000 - 1;														// 1ms
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	
@@ -649,6 +781,7 @@ void timer_interrupt_init()
 	TIM_ITConfig(TIM4,TIM_IT_Update,DISABLE);
 	TIM_Cmd(TIM4, DISABLE);
 }
+
 void queue_push_string(queue_t * q, const char * string, const uint8_t length)
 {
 	int i;
